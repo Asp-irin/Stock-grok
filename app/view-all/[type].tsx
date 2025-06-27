@@ -1,10 +1,11 @@
+import { useStockDetailStore } from '@/store/useStockDetailStore';
 import { useStockStore } from '@/store/useStockStore';
+import { useWatchlistStore } from '@/store/useWacthlistStore';
 import { Stock } from '@/util';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import { StockCard } from '../../components/StockCard'; // adjust path if needed
-
 
 
 
@@ -154,34 +155,51 @@ const allDummyData = [
 const ITEMS_PER_PAGE = 8;
 
 export default function ViewAllScreen() {
-  const { type } = useLocalSearchParams();
-  const navigation = useNavigation();
-  const [currentData,setCurrentData] = useState<Stock[]>();
-  const store = useStockStore.getState();
-  console.log(store);
-  const mapping: Record<string, Stock[]> = {
-  "Top Movers": store.topMovers,
-  "Top Losers": store.topLosers,
-};
+  const type = String(useLocalSearchParams().type);
+  const { topMovers, topLosers } = useStockStore();
+  const { getStocksFromWatchlist } = useWatchlistStore();
+  const { getStockDetail } = useStockDetailStore();
 
   const [page, setPage] = useState(1);
-  const totalPages = Math.ceil(allDummyData.length / ITEMS_PER_PAGE);
-
-  // const currentData = allDummyData.slice(
-  //   (page - 1) * ITEMS_PER_PAGE,
-  //   page * ITEMS_PER_PAGE
-  // );
+  const [currentData,setCurrentData] = useState<Stock[]>();
 
   useEffect(() => {
-    const typeStr = Array.isArray(type) ? type[0] : type;
-    navigation.setOptions({
-      title: decodeURIComponent(typeStr as string),
-    });
-    const dataToRender = mapping[typeStr as string] || [];
-    setCurrentData(dataToRender);
-    // console.log(dataToRender);
-    console.log(store.topMovers);
-  }, [type]);
+    navigation.setOptions({ headerTitle: `${type}` });
+    let allData: any[] = [];
+
+
+    if (type === "Top Movers") {
+      allData = topMovers;
+    } else if (type === "Top Losers") {
+      allData = topLosers;
+    } else {
+      const allDat = getStocksFromWatchlist(type);
+      // fetching data of each stock in watchlist
+      allData = allDat.map((stock) => {
+        const detail = getStockDetail(stock);
+        return {
+          ticker: detail?.ticker,
+          price: detail?.price,
+          changePrice: detail?.changePrice,
+          changePercent: detail?.changePercent,
+        };
+      });
+      console.log("allData", allData);
+      // return;
+      // on removing and getting back from stock it is still in the watchlist need to fix this!
+    }
+
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    setCurrentData(allData.slice(startIndex, endIndex));
+    // change here!
+  }, [type,page]);
+
+
+
+  const navigation = useNavigation();
+
+  const totalPages = Math.ceil((currentData?.length ?? 0) / ITEMS_PER_PAGE);
 
   return (
     <View style={styles.container}>
