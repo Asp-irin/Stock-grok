@@ -1,7 +1,12 @@
+import { useStockStore } from '@/store/useStockStore';
+import { Stock } from '@/util';
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { Button, FlatList, StyleSheet, Text, View } from 'react-native';
 import { StockCard } from '../../components/StockCard'; // adjust path if needed
+
+
+
 
 const allDummyData = [
   {
@@ -151,19 +156,31 @@ const ITEMS_PER_PAGE = 8;
 export default function ViewAllScreen() {
   const { type } = useLocalSearchParams();
   const navigation = useNavigation();
+  const [currentData,setCurrentData] = useState<Stock[]>();
+  const store = useStockStore.getState();
+  console.log(store);
+  const mapping: Record<string, Stock[]> = {
+  "Top Movers": store.topMovers,
+  "Top Losers": store.topLosers,
+};
 
   const [page, setPage] = useState(1);
   const totalPages = Math.ceil(allDummyData.length / ITEMS_PER_PAGE);
 
-  const currentData = allDummyData.slice(
-    (page - 1) * ITEMS_PER_PAGE,
-    page * ITEMS_PER_PAGE
-  );
+  // const currentData = allDummyData.slice(
+  //   (page - 1) * ITEMS_PER_PAGE,
+  //   page * ITEMS_PER_PAGE
+  // );
 
   useEffect(() => {
+    const typeStr = Array.isArray(type) ? type[0] : type;
     navigation.setOptions({
-      title: decodeURIComponent(type as string),
+      title: decodeURIComponent(typeStr as string),
     });
+    const dataToRender = mapping[typeStr as string] || [];
+    setCurrentData(dataToRender);
+    // console.log(dataToRender);
+    console.log(store.topMovers);
   }, [type]);
 
   return (
@@ -172,15 +189,14 @@ export default function ViewAllScreen() {
         data={currentData}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
-        keyExtractor={(item) => item.symbol}
+        keyExtractor={(item) => item.ticker}
         renderItem={({ item }) => (
           <StockCard
-            name={item.name}
-            symbol={item.symbol}
-            price={item.price}
-            changePercent={item.changePercent}
-            logoUrl={item.logoUrl}
-          />
+                      ticker={item.ticker}
+                      price={item.price}
+                      changePrice={item.changePrice}
+                      changePercent={item.changePercent}
+                    />
         )}
       />
 

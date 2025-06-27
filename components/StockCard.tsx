@@ -1,29 +1,21 @@
 import { useRouter } from 'expo-router'; // Adjust import based on your routing setup
 import React from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { Stock } from '../util'; // Adjust path as needed
 
-type StockCardProps = {
-  name: string;
-  symbol: string;
-  price: number | string; // need to check this from the API response
-  changePercent: number | string; // need to!
-  logoUrl?: string;
-};
-
-export function StockCard({ name, symbol, price, changePercent, logoUrl }: StockCardProps) {
-    const isPositive = parseFloat(changePercent as string) >= 0;
+export function StockCard({ ticker, price,changePrice, changePercent }: Stock) {
+    const isPositive = changePercent >= 0;
     const router = useRouter();
 
     return (
-      <TouchableOpacity style={styles.card}   onPress={() => router.navigate(`/stockDetail/${encodeURIComponent(symbol)}`)}>
+      <TouchableOpacity style={styles.card}   onPress={() => router.navigate(`/stockDetail/${encodeURIComponent(ticker)}`)}>
         {/* <View style={styles.card}> */}
-            <Image
-                source={{ uri: logoUrl || 'https://via.placeholder.com/50' }}
-                style={styles.logo}
-            />
-            {/* <Text style={styles.name}>{name}</Text> */}
-            <Text style={styles.symbol}>{symbol}</Text>
+            <Text style={styles.symbol}>{ticker}</Text>
             <Text style={styles.price}>${price}</Text>
+            <Text style={[styles.change, { color: isPositive ? '#28a745' : '#d63031' }]}>
+                {isPositive ? '+' : ''}
+                {changePrice}
+            </Text>
             <Text style={[styles.change, { color: isPositive ? '#28a745' : '#d63031' }]}>
                 {isPositive ? '+' : ''}
                 {changePercent}%
