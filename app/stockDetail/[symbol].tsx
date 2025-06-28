@@ -11,6 +11,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
+import { KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 
 export default function StockDetailScreen({ticker, price , changePrice, changePercent}: Stock) {
   const { symbol } = useLocalSearchParams<{ symbol: string }>();
@@ -44,7 +45,7 @@ const [stockData, setStockData] = useState<Stock>();
     setSelectedStockSymbol(symbol);
     const fetchStockDetailstockDetail = async () => {
       try{
-        if(!isDetailStale){
+        if(!isDetailStale(symbol)){
           console.log("using cached data");
           setlocalStockDetail(getStockDetail(symbol))
           return
@@ -117,8 +118,9 @@ const handleCreateWatchlist = () => {
   setNewWatchlistName('');
   toggleCreateModal();
 };
-const formatMetric = (value: any) =>
-  typeof value === 'number' && Number.isFinite(value) ? value : 'N/A';
+const displayStat = (value: any) =>
+  value === undefined || value === null || isNaN(value) ? '-' : value;
+
 
 
 const handleSave = () => {
@@ -210,19 +212,19 @@ const handleSave = () => {
           </View>
           <View style={{ flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <Text>P/E Ratio</Text>
-            <Text>{localStockDetail?.peRatio}</Text>
+            <Text>{displayStat(localStockDetail?.peRatio)}</Text>
           </View>
           <View style={{ flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <Text>Beta</Text>
-            <Text>{localStockDetail?.beta}</Text>
+            <Text>{displayStat(localStockDetail?.beta)}</Text>
           </View>
           <View style={{ flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <Text>Dividend Yield</Text>
-            <Text>{localStockDetail?.dividendYield}</Text>
+            <Text>{displayStat(localStockDetail?.dividendYield)}</Text>
           </View>
           <View style={{ flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <Text>Profit Margin</Text>
-            <Text>{localStockDetail?.profitMargin}</Text>
+            <Text>{displayStat(localStockDetail?.profitMargin)}</Text>
           </View>
         </View>
       </View>
@@ -338,13 +340,13 @@ const handleSave = () => {
               color={checkState[item.name] ? '#007AFF' : '#666'}
             />
           </TouchableOpacity>
-          <Text style={{ marginLeft: 12, fontSize: 32 }}>{item.name}</Text>
+          <Text style={{ marginLeft: 12, fontSize: 16 }}>{item.name}</Text>
         </View>
       ))}
     </ScrollView>
 
     <TouchableOpacity onPress={toggleCreateModal}>
-      <Text style={{ color: '#007AFF', fontWeight: '600', fontSize: 16, marginBottom: 16 }}>
+      <Text style={{ color: '#007AFF', fontWeight: '600', fontSize: 16, marginBottom: 18 }}>
         + Create a new watchlist
       </Text>
     </TouchableOpacity>
@@ -365,55 +367,68 @@ const handleSave = () => {
     </TouchableOpacity>
   </View>
 </Modal>
+
 <Modal
   isVisible={isCreateModalVisible}
   onBackdropPress={toggleCreateModal}
   style={{ justifyContent: 'flex-end', margin: 0 }}
 >
-  <View style={{
-    backgroundColor: 'white',
-    padding: 20,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20
-  }}>
-    <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 16 }}>
-      Create New Watchlist
-    </Text>
+  <KeyboardAvoidingView
+    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    keyboardVerticalOffset={Platform.OS === 'ios' ? 80 : 0}
+  >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View
+        style={{
+          backgroundColor: 'white',
+          padding: 20,
+          borderTopLeftRadius: 20,
+          borderTopRightRadius: 20,
+        }}
+      >
+        <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 16 }}>
+          Create New Watchlist
+        </Text>
 
-    <TextInput
-      value={newWatchlistName}
-      onChangeText={(text) => {
-        setNewWatchlistName(text);
-        validateWatchlist(text);
-      }}
-      placeholder="Enter watchlist name"
-      style={{
-        borderWidth: 1,
-        borderColor: error ? 'red' : '#ccc',
-        borderRadius: 8,
-        paddingHorizontal: 12,
-        height: 44,
-        marginBottom: 6,
-      }}
-    />
+        <TextInput
+          value={newWatchlistName}
+          onChangeText={(text) => {
+            setNewWatchlistName(text);
+            validateWatchlist(text);
+          }}
+          placeholder="Enter watchlist name"
+          style={{
+            borderWidth: 1,
+            borderColor: error ? 'red' : '#ccc',
+            borderRadius: 8,
+            paddingHorizontal: 12,
+            height: 44,
+            marginBottom: 6,
+          }}
+        />
 
-{!!error && (
-  <Text style={{ color: 'red', fontSize: 12, marginBottom: 4 }}>{error}</Text>
-)}
+        {!!error && (
+          <Text style={{ color: 'red', fontSize: 12, marginBottom: 4 }}>
+            {error}
+          </Text>
+        )}
 
-<TouchableOpacity
-  onPress={handleCreateWatchlist}
-  disabled={!!error || !newWatchlistName.trim()}
-  style={{
-    backgroundColor: !!error || !newWatchlistName.trim() ? '#121212' : '#007AFF',
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  }}>
-  <Text style={{ color: 'white', fontWeight: 'bold' }}>Create</Text>
-</TouchableOpacity>
-
-  </View>
+        <TouchableOpacity
+          onPress={handleCreateWatchlist}
+          disabled={!!error || !newWatchlistName.trim()}
+          style={{
+            backgroundColor:
+              !!error || !newWatchlistName.trim() ? '#121212' : '#007AFF',
+            paddingVertical: 12,
+            borderRadius: 8,
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: 'white', fontWeight: 'bold' }}>Create</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableWithoutFeedback>
+  </KeyboardAvoidingView>
 </Modal>
 
 

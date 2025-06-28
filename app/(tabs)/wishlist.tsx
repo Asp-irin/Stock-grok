@@ -4,12 +4,6 @@ import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// const dummyWishlists = [
-//   { id: '1', name: 'Tech Stocks' },
-//   { id: '2', name: 'ETFs to Watch' },
-//   { id: '3', name: 'Dividend Kings' },
-// ];
-
 export default function TabTwoScreen() {
     const router = useRouter();
   const { watchlists } = useWatchlistStore();
@@ -17,7 +11,7 @@ export default function TabTwoScreen() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <Text style={styles.headerText}>Wishlist</Text>
+      <Text style={styles.headerText}>Wishlists</Text>
 
       {/* Wishlist Items */}
       <FlatList

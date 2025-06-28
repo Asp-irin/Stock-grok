@@ -13,6 +13,7 @@ type StockDetailStore = {
   isDetailStale: (symbol: string, maxAge?: number) => boolean;
 };
 
+
 const DEFAULT_MAX_AGE = 30 * 60 * 1000; // 30 minutes
 
 // const StockDetails = [{
