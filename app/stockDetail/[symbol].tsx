@@ -2,6 +2,7 @@ import { getCompanyOverview } from '@/api/stock';
 import CustomSlider from '@/components/customSlider';
 import StockChart from '@/components/StockChart';
 import { useStockDetailStore } from '@/store/useStockDetailStore';
+import { useStockStore } from '@/store/useStockStore';
 import { useWatchlistStore } from '@/store/useWacthlistStore';
 import { Stock, StockDetail } from '@/util';
 import { transformStockDetail } from '@/util/util';
@@ -20,6 +21,7 @@ export default function StockDetailScreen({ticker, price , changePrice, changePe
   // const [error, setError] = useState('');
   const [localStockDetail, setlocalStockDetail] = useState<StockDetail>();
   const { getStockDetail,isDetailStale,setStockDetail } = useStockDetailStore();
+  const { getStock } = useStockStore();
   const { watchlists, addWatchlist, addStockToWatchlist, removeStockFromWatchlist,getStockWatchlistStatus } = useWatchlistStore();
   const { isInWatchlist } = getStockWatchlistStatus(symbol);
 
@@ -38,48 +40,6 @@ const [stockData, setStockData] = useState<Stock>();
     setCreateModalVisible(!isCreateModalVisible);
   };
 
-  // const [watchlists, setWatchlists] = useState([
-  //   { id: 1, name: 'Tech Stocks', checked: false },
-  //   { id: 2, name: 'Favorites', checked: false },
-  //   { id: 11, name: 'Tech Stocks', checked: false },
-  // ]);
-
-  // const toggleCheck = (id: Number) => {
-  //   setWatchlists(prev =>
-  //     prev.map(item =>
-  //       item.id === id ? { ...item, checked: !item.checked } : item
-  //     )
-  //   );
-  // };
-
-  // const validateWatchlist = (name: string) => {
-  //   if (!name.trim() || name.length > 18 || !/^[a-zA-Z0-9 ]+$/.test(name)) {
-  //     setError('Watchlist name must be 1-18 characters. Only letters and numbers allowed.');
-  //     return false;
-  //   }
-  //   const exists = watchlists.some(
-  //     wl => wl.name.toLowerCase().trim() === name.toLowerCase().trim()
-  //   );
-  //   if (exists) {
-  //     setError('Watchlist already exists.');
-  //     return false;
-  //   }
-  //   setError('');
-  //   return true;
-  // };
-
-  // const handleCreateWatchlist = () => {
-  //   if (!validateWatchlist(newWatchlistName)) return;
-  //   setWatchlists(prev => [
-  //     ...prev,
-  //     { id: Date.now(), name: newWatchlistName.trim(), checked: false },
-  //   ]);
-  //   setNewWatchlistName('');
-  //   toggleCreateModal();
-  // };
-
-  // console.log('Stock Detail Symbol:', symbol);
-  
   useEffect(()=>{
     setSelectedStockSymbol(symbol);
     const fetchStockDetailstockDetail = async () => {
@@ -92,15 +52,20 @@ const [stockData, setStockData] = useState<Stock>();
         else{
           const rawStockDetail = await getCompanyOverview(symbol as string);
           rawStockDetail.ticker = symbol;
-          rawStockDetail.price = price;
-          rawStockDetail.changePrice = changePrice;
-          rawStockDetail.changePercent = changePercent;
-          console.log('Fetched Stock Detail stockDetail:', rawStockDetail);
+          const stockMetaData = getStock(symbol);
+          if (!stockMetaData) {
+            throw new Error(`Stock metadata not found for symbol: ${symbol}`);
+          }
           // clean the stockDetail as well
-          setlocalStockDetail(transformStockDetail(rawStockDetail));
-          setStockDetail(symbol,transformStockDetail(rawStockDetail));
+          const cleanedStockDetail: StockDetail = transformStockDetail(rawStockDetail);
+          cleanedStockDetail.ticker = symbol;
+          cleanedStockDetail.price = stockMetaData.price;
+          cleanedStockDetail.changePrice = stockMetaData.changePrice;
+          cleanedStockDetail.changePercent = stockMetaData.changePercent;
+          setlocalStockDetail(cleanedStockDetail);
+          setStockDetail(symbol,cleanedStockDetail);
 
-          console.log('Transformed Stock Detail stockDetail:', transformStockDetail(rawStockDetail));
+          console.log('Transformed Stock Detail stockDetail:', cleanedStockDetail);
         }
       } catch (error) {
         console.error('Error fetching stock detail stockDetail:', error);
@@ -127,8 +92,21 @@ const toggleCheck = (watchlistName: string) => {
 };
 
 const validateWatchlist = (name: string) => {
-  if (!name.trim()) return setError("Name can't be empty");
-  if (watchlists.some(wl => wl.name === name.trim())) return setError("Watchlist already exists");
+  const trimmedName = name.trim();
+
+  if (!trimmedName) return setError("Name can't be empty");
+
+  if (watchlists.some(wl => wl.name === trimmedName)) {
+    return setError("Watchlist already exists");
+  }
+
+  if (trimmedName.length < 1 || trimmedName.length > 18) {
+    return setError("Name must be between 1 and 18 characters");
+  }
+
+  if (!/^[a-zA-Z0-9 ]+$/.test(trimmedName)) {
+    return setError("Only letters and numbers are allowed");
+  }
   setError('');
 };
 
@@ -139,6 +117,9 @@ const handleCreateWatchlist = () => {
   setNewWatchlistName('');
   toggleCreateModal();
 };
+const formatMetric = (value: any) =>
+  typeof value === 'number' && Number.isFinite(value) ? value : 'N/A';
+
 
 const handleSave = () => {
   if (!selectedStockSymbol) return;
@@ -164,26 +145,6 @@ const handleSave = () => {
 //   setStockDetail(detail);
 // }, [symbol]);
 
-  const data = {
-    name: 'International Business Machines',
-    symbol: 'IBM, Common Stock',
-    exchange: 'NYSE',
-    logo: 'https://upload.wikimedia.org/wikipedia/commons/5/51/IBM_logo.svg',
-    price: '$177.15',
-    change: '+0.41%',
-    changeColor: 'green',
-    low: '$165.47',
-    high: '$296.16',
-    marketCap: '$273.05B',
-    peRatio: '50.22',
-    beta: '0.652',
-    dividend: '2.29%',
-    margin: '8.71%',
-    industry: 'Computer & Office Equipment',
-    sector: 'Technology',
-    description: `International Business Machines Corporation (IBM) is an American multinational technology company headquartered in Armonk, New York, with operations in over 170 countries. The company began in 1911, founded in Endicott, New York, as the Computing-Tabulating-Recording Company (CTR) and was renamed International Business Machines in 1924. IBM is incorporated in New York. IBM produces and sells computer hardware, middleware and software, and provides hosting and consulting services in areas ranging from mainframe computers to nanotechnology. IBM is also a major research organization, holding the record for most annual U.S. patents generated by a business (as of 2020) for 28 consecutive years. Inventions by IBM include the automated teller machine (ATM), the floppy disk, the hard disk drive, the magnetic stripe card, the relational database, the SQL programming language, the UPC barcode, and dynamic random-access memory (DRAM). The IBM mainframe, exemplified by the System/360, was the dominant computing platform during the 1960s and 1970s.`,
-  };
-
   return (
     <ScrollView style={{ flex: 1, backgroundColor: 'white', paddingTop: 50 }}>
       {/* Header */}
@@ -193,16 +154,16 @@ const handleSave = () => {
         </TouchableOpacity>
         <TouchableOpacity>
           <Ionicons
-            name="bookmark-outline"
+            name="bookmark"
             size={24}
-            color={isInWatchlist ? 'blue' : 'black'}
+            color={isInWatchlist ? 'green' : 'black'}
             onPress={toggleModal}
           />
         </TouchableOpacity>
       </View>
       {/* Company Info */}
       <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 22}}>
-        <Image source={{ uri: data.logo }} style={{ width: 48, height: 48, marginRight: 12 }} />
+        <Image style={{ width: 48, height: 48, marginRight: 12, borderWidth: 2 }} />
         <View style={{ flex: 1 }}>
           <Text style={{ fontWeight: 'bold', fontSize: 18 }}>{localStockDetail?.name}</Text>
           <Text style={{ color: '#666' }}>{localStockDetail?.ticker}</Text>
@@ -245,7 +206,7 @@ const handleSave = () => {
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', rowGap: 1 }}>
           <View style={{ flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <Text style={styles.statTitle}>Market Cap</Text>
-            <Text style={styles.statValue}>{localStockDetail?.marketCap}</Text>
+            <Text style={styles.statValue}>{localStockDetail?.marketCap }</Text>
           </View>
           <View style={{ flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <Text>P/E Ratio</Text>
@@ -349,7 +310,7 @@ const handleSave = () => {
       </Modal> */}
 
 
-      <Modal
+<Modal
   isVisible={isModalVisible}
   onBackdropPress={toggleModal}
   style={{ justifyContent: 'flex-end', margin: 0 }}
@@ -358,7 +319,7 @@ const handleSave = () => {
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    maxHeight: '90%',
+    maxHeight: '95%',
     paddingHorizontal: 20,
     paddingTop: 20,
     paddingBottom: 10
@@ -367,7 +328,7 @@ const handleSave = () => {
       Add Stock to
     </Text>
 
-    <ScrollView style={{ maxHeight: 250, marginBottom: 16 }}>
+    <ScrollView style={{ flexGrow: 1, marginBottom: 16 }}>
       {watchlists.map((item) => (
         <View key={item.name} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
           <TouchableOpacity onPress={() => toggleCheck(item.name)}>
@@ -377,7 +338,7 @@ const handleSave = () => {
               color={checkState[item.name] ? '#007AFF' : '#666'}
             />
           </TouchableOpacity>
-          <Text style={{ marginLeft: 12, fontSize: 16 }}>{item.name}</Text>
+          <Text style={{ marginLeft: 12, fontSize: 32 }}>{item.name}</Text>
         </View>
       ))}
     </ScrollView>
@@ -436,32 +397,22 @@ const handleSave = () => {
       }}
     />
 
-    {error ? (
-      <>
-        <Text style={{ color: 'red', fontSize: 12, marginBottom: 12 }}>{error}</Text>
-        <TouchableOpacity
-          disabled
-          style={{
-            backgroundColor: '#121212',
-            paddingVertical: 12,
-            borderRadius: 8,
-            alignItems: 'center',
-          }}>
-          <Text style={{ color: 'white', fontWeight: 'bold' }}>Create</Text>
-        </TouchableOpacity>
-      </>
-    ) : (
-      <TouchableOpacity
-        onPress={handleCreateWatchlist}
-        style={{
-          backgroundColor: '#007AFF',
-          paddingVertical: 12,
-          borderRadius: 8,
-          alignItems: 'center',
-        }}>
-        <Text style={{ color: 'white', fontWeight: 'bold' }}>Create</Text>
-      </TouchableOpacity>
-    )}
+{!!error && (
+  <Text style={{ color: 'red', fontSize: 12, marginBottom: 4 }}>{error}</Text>
+)}
+
+<TouchableOpacity
+  onPress={handleCreateWatchlist}
+  disabled={!!error || !newWatchlistName.trim()}
+  style={{
+    backgroundColor: !!error || !newWatchlistName.trim() ? '#121212' : '#007AFF',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  }}>
+  <Text style={{ color: 'white', fontWeight: 'bold' }}>Create</Text>
+</TouchableOpacity>
+
   </View>
 </Modal>
 
