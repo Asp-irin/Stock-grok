@@ -1,4 +1,4 @@
-import { Daily, Monthly, RawStockApiItem, RawStockDetailApiItem, Stock, StockDetail, Weekly } from '.';
+import {  RawStockApiItem, RawStockDetailApiItem, Stock, StockDetail, Weekly } from '.';
 
 export const transformStock = (raw: RawStockApiItem): Stock => ({
   ticker: raw.ticker,
@@ -26,7 +26,7 @@ export const transformStockDetail = (raw: RawStockDetailApiItem): StockDetail =>
   beta: parseFloat(raw.Beta),
   profitMargin: parseFloat(raw.ProfitMargin),
   dividendYield: parseFloat(raw.DividendYield),
-  daily: null as unknown as Daily,     // will set later
-  weekly: null as unknown as Weekly,   // will set later
-  monthly: null as unknown as Monthly, // will set later
+  // daily: null as unknown as Daily,     // will set later
+  // weekly: null as unknown as Weekly,   // will set later
+  // monthly: null as unknown as Monthly, // will set later
 });

@@ -36,8 +36,8 @@ export async function getCompanyOverview(symbol: string) {
         'User-Agent': 'axios-client',
       },
     });
-    getStockDataMonthly(symbol); // Fetch monthly stock data as well
-    console.log("company overview for", symbol, ":", res.data);
+    // getStockDataMonthly(symbol); // Fetch monthly stock data as well
+    // console.log("company overview for", symbol, ":", res.data);
     return res.data;
   } catch (err) {
     console.error(`Failed to fetch company overview for ${symbol}:`, err);
@@ -50,7 +50,7 @@ export async function getStockDataDaily(symbol: string) {
   try {
     const res = await axios.get(BASE_URL, {
       params: {
-        function: 'TIME_SERIES_DAILY_ADJUSTED',
+        function: 'TIME_SERIES_DAILY',
         symbol,
         apikey: ALPHA_VANTAGE_API_KEY,
       },
@@ -58,7 +58,7 @@ export async function getStockDataDaily(symbol: string) {
         'User-Agent': 'axios-client',
       },
     });
-    console.log(`Fetched daily stock data for ${symbol}:`, res.data);
+    console.log(`Fetched daily stock data for ${symbol}: i am from the stock.ts`, res.data);
     return res.data;
   } catch (err) {
     console.error(`Failed to fetch daily stock data for ${symbol}:`, err);

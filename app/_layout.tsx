@@ -27,7 +27,7 @@ export default function RootLayout() {
           options={{ headerShown: false, title: 'View All' }} />
         <Stack.Screen name="+not-found" />
       </Stack>
-      <StatusBar style="dark" />
+      <StatusBar style="light" />
     </ThemeProvider>
   );
 }

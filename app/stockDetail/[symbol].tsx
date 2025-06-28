@@ -12,6 +12,10 @@ import { useEffect, useState } from 'react';
 import { Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Modal from 'react-native-modal';
 import { KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { getStockDataMonthly,getStockDataDaily,getStockDataWeekly } from '@/api/stock';
+import { useChartStore } from '@/store/useStockChartData';
+import AlertModal from '@/components/AlertModal';
+
 
 export default function StockDetailScreen({ticker, price , changePrice, changePercent}: Stock) {
   const { symbol } = useLocalSearchParams<{ symbol: string }>();
@@ -23,6 +27,15 @@ export default function StockDetailScreen({ticker, price , changePrice, changePe
   const [localStockDetail, setlocalStockDetail] = useState<StockDetail>();
   const { getStockDetail,isDetailStale,setStockDetail } = useStockDetailStore();
   const { getStock } = useStockStore();
+  const { getChartData, setChartData, hasChartData } = useChartStore();
+  const [selectedRange, setSelectedRange] = useState<'1W' | '1M' | '1Y'>('1W');
+  const [loadingChart, setLoadingChart] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+const [alertMessage, setAlertMessage] = useState('');
+
+
+
+
   const { watchlists, addWatchlist, addStockToWatchlist, removeStockFromWatchlist,getStockWatchlistStatus } = useWatchlistStore();
   const { isInWatchlist } = getStockWatchlistStatus(symbol);
 
@@ -41,6 +54,88 @@ const [stockData, setStockData] = useState<Stock>();
     setCreateModalVisible(!isCreateModalVisible);
   };
 
+  const showAlert = (message: string, timeout = 2000) => {
+  setAlertMessage(message);
+  setAlertVisible(true);
+  setTimeout(() => {
+    setAlertVisible(false);
+    setAlertMessage('');
+  }, timeout);
+};
+
+
+useEffect(() => {
+  if (symbol) {
+    handleRangeChange('1W');
+  }
+}, [symbol]);
+
+const handleRangeChange = async (range: '1W' | '1M' | '1Y') => {
+  if (!symbol) return;
+
+  setSelectedRange(range);
+  setLoadingChart(true);
+
+  const cached = getChartData(symbol, range);
+  if (cached && cached.length > 0) {
+    console.log(`[CACHE HIT] ${symbol} ${range}`);
+    setLoadingChart(false);
+    return;
+  }
+
+  try {
+    console.log(`[API FETCH] ${symbol} ${range}`);
+    let fetchedData;
+
+    if (range === '1W') {
+      fetchedData = await getStockDataDaily(symbol);
+    } else if (range === '1M') {
+      fetchedData = await getStockDataWeekly(symbol);
+    } else if (range === '1Y') {
+      fetchedData = await getStockDataMonthly(symbol);
+    }
+
+    const rawTimeSeries =
+      fetchedData['Time Series (Daily)'] ||
+      fetchedData['Weekly Adjusted Time Series'] ||
+      fetchedData['Monthly Adjusted Time Series'];
+
+    if (!rawTimeSeries) {
+      console.error('Invalid chart data format');
+      setLoadingChart(false);
+      return;
+    }
+
+    const transformed = Object.entries(rawTimeSeries)
+      .map(([date, entry]: [string, any]) => ({
+        date,
+        price: parseFloat(entry['5. adjusted close'] || entry['4. close']),
+      }))
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+    // ⏳ Take last N entries based on range
+    let finalData: { date: string; price: number }[] = [];
+    if (range === '1W') {
+      finalData = transformed.slice(-7);
+    } else if (range === '1M') {
+      finalData = transformed.slice(-4);
+    } else if (range === '1Y') {
+      finalData = transformed.slice(-12);
+    }
+
+    setChartData(symbol, range, finalData);
+  } catch (err) {
+    console.error(`[FETCH ERROR] Chart ${range}`, err);
+  }
+
+  setLoadingChart(false);
+};
+
+
+
+
+
+
   useEffect(()=>{
     setSelectedStockSymbol(symbol);
     const fetchStockDetailstockDetail = async () => {
@@ -52,7 +147,7 @@ const [stockData, setStockData] = useState<Stock>();
         }
         else{
           const rawStockDetail = await getCompanyOverview(symbol as string);
-          rawStockDetail.ticker = symbol;
+          rawStockDetail.ticker = symbol;          
           const stockMetaData = getStock(symbol);
           if (!stockMetaData) {
             throw new Error(`Stock metadata not found for symbol: ${symbol}`);
@@ -114,10 +209,13 @@ const validateWatchlist = (name: string) => {
 const handleCreateWatchlist = () => {
   if (error || !newWatchlistName.trim()) return;
   addWatchlist(newWatchlistName.trim());
-  setCheckState(prev => ({ ...prev, [newWatchlistName.trim()]: true })); // auto-select new one
+  setCheckState(prev => ({ ...prev, [newWatchlistName.trim()]: true }));
   setNewWatchlistName('');
   toggleCreateModal();
+  showAlert('Watchlist created!');
 };
+
+
 const displayStat = (value: any) =>
   value === undefined || value === null || isNaN(value) ? '-' : value;
 
@@ -127,15 +225,13 @@ const handleSave = () => {
   if (!selectedStockSymbol) return;
   Object.entries(checkState).forEach(([name, isChecked]) => {
     if (isChecked) {
-      console.log("checked")
       addStockToWatchlist(name, selectedStockSymbol);
     } else {
-      console.log("not checked")
-
       removeStockFromWatchlist(name, selectedStockSymbol);
     }
   });
   toggleModal();
+  showAlert('Changes saved to watchlist!');
 };
 
 
@@ -190,7 +286,25 @@ const handleSave = () => {
         <Grid />
       </LineChart>
       </View> */}
-      <StockChart />
+    <StockChart symbol={symbol} range={selectedRange} loading={loadingChart} />
+
+    <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 12, marginVertical: 16 }}>
+  {['1W', '1M', '1Y'].map((range) => (
+    <TouchableOpacity
+      key={range}
+      onPress={() => handleRangeChange(range as '1W' | '1M' | '1Y')}
+      style={{
+        paddingHorizontal: 16,
+        paddingVertical: 6,
+        borderRadius: 20,
+        backgroundColor: selectedRange === range ? '#007AFF' : '#e0e0e0',
+      }}
+    >
+      <Text style={{ color: selectedRange === range ? 'white' : 'black', fontWeight: '600' }}>{range}</Text>
+    </TouchableOpacity>
+  ))}
+</View>
+
       {/* </View> */}
 
       {/* Info Box */}
@@ -228,88 +342,6 @@ const handleSave = () => {
           </View>
         </View>
       </View>
-
-      {/* Watchlist Modal */}
-      {/* <Modal isVisible={isModalVisible} onBackdropPress={toggleModal} style={{ justifyContent: 'flex-end', margin: 0 }}>
-        <View style={{ backgroundColor: 'white', borderTopLeftRadius: 20, borderTopRightRadius: 20, maxHeight: '90%', paddingHorizontal: 20, paddingTop: 20, paddingBottom: 10 }}>
-          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 16 }}>Add Stock to</Text>
-
-          <View style={{ maxHeight: 250, marginBottom: 16 }}>
-            <ScrollView>
-              {watchlists.map(item => (
-                <View key={item.id} style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12 }}>
-                  <TouchableOpacity onPress={() => toggleCheck(item.id)}>
-                    <Ionicons name={item.checked ? 'checkbox' : 'square-outline'} size={24} color={item.checked ? '#007AFF' : '#666'} />
-                  </TouchableOpacity>
-                  <Text style={{ marginLeft: 12, fontSize: 16 }}>{item.name}</Text>
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-
-          <TouchableOpacity onPress={toggleCreateModal}>
-            <Text style={{ color: '#007AFF', fontWeight: '600', fontSize: 16, marginBottom: 16 }}>+ Create a new watchlist</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={toggleModal} style={{ backgroundColor: '#007AFF', paddingVertical: 14, borderRadius: 8, alignItems: 'center', marginBottom: 10 }}>
-            <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>Save</Text>
-          </TouchableOpacity>
-        </View>
-      </Modal> */}
-
-      {/* Create New Watchlist Modal */}
-      {/* <Modal isVisible={isCreateModalVisible} onBackdropPress={toggleCreateModal} style={{ justifyContent: 'flex-end', margin: 0 }}>
-        <View style={{ backgroundColor: 'white', padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20 }}>
-          <Text style={{ fontWeight: 'bold', fontSize: 18, marginBottom: 16 }}>Create New Watchlist</Text>
-
-          <TextInput
-            value={newWatchlistName}
-            onChangeText={(text) => {
-              setNewWatchlistName(text);
-              validateWatchlist(text);
-            }}
-            placeholder="Enter watchlist name"
-            style={{
-              borderWidth: 1,
-              borderColor: error ? 'red' : '#ccc',
-              borderRadius: 8,
-              paddingHorizontal: 12,
-              height: 44,
-              marginBottom: 6,
-            }}
-          />
-
-          {!!error ? (
-  <View>
-    <Text style={{ color: 'red', fontSize: 12, marginBottom: 12 }}>{error}</Text>
-    <TouchableOpacity
-      disabled
-      style={{
-        backgroundColor: '#121212',
-        paddingVertical: 12,
-        borderRadius: 8,
-        alignItems: 'center',
-      }}>
-      <Text style={{ color: 'white', fontWeight: 'bold' }}>Create</Text>
-    </TouchableOpacity>
-  </View>
-) : (
-  <TouchableOpacity
-    onPress={handleCreateWatchlist}
-    style={{
-      backgroundColor: '#007AFF',
-      paddingVertical: 12,
-      borderRadius: 8,
-      alignItems: 'center',
-    }}>
-    <Text style={{ color: 'white', fontWeight: 'bold' }}>Create</Text>
-  </TouchableOpacity>
-)}
-
-          
-          
-        </View>
-      </Modal> */}
 
 
 <Modal
@@ -430,6 +462,13 @@ const handleSave = () => {
     </TouchableWithoutFeedback>
   </KeyboardAvoidingView>
 </Modal>
+
+<AlertModal
+  visible={alertVisible}
+  message={alertMessage}
+  onClose={() => setAlertVisible(false)}
+/>
+
 
 
     </ScrollView>
