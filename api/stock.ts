@@ -1,5 +1,5 @@
 import axios from 'axios';
-const ALPHA_VANTAGE_API_KEY = 'CDILOXWVIXVXYEVA'; // replace with your real key
+const ALPHA_VANTAGE_API_KEY = '7QAJBHSRN9KDZQ1R'; // replace with your real key
 const BASE_URL = 'https://www.alphavantage.co/query';
 
 
@@ -36,6 +36,7 @@ export async function getCompanyOverview(symbol: string) {
         'User-Agent': 'axios-client',
       },
     });
+    // console.log("company overview for", symbol, ":", res.data);
     return res.data;
   } catch (err) {
     console.error(`Failed to fetch company overview for ${symbol}:`, err);
