@@ -7,27 +7,6 @@ export const useTheme = () => {
   return Colors[theme];
 };
 
-const avatarColors = [
-  '#1C2B27', // teal-green
-  '#4B3B2F', // brown
-  '#0F2952', // navy
-  '#372049', // purple
-  '#264C28', // dark green
-  '#3B2F2F', // dark brown
-  '#1D2F35', // blue-gray
-  '#443C2E', // ochre
-  '#2A3942', // steel blue
-];
-
-function getColorFromTicker(ticker: string): string {
-  if (!ticker) return avatarColors[0];
-  let hash = 0;
-  for (let i = 0; i < ticker.length; i++) {
-    hash = ticker.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return avatarColors[Math.abs(hash) % avatarColors.length];
-}
-
 
 export const useStyles = () => {
   const theme = useTheme();

@@ -28,7 +28,7 @@ export default function StockDetailScreen({ticker, price , changePrice, changePe
   const [localStockDetail, setlocalStockDetail] = useState<StockDetail>();
   const { getStockDetail,isDetailStale,setStockDetail } = useStockDetailStore();
   const { getStock } = useStockStore();
-  const { getChartData, setChartData, hasChartData } = useChartStore();
+  const { getChartData, setChartData, isChartDataStale } = useChartStore();
   const [selectedRange, setSelectedRange] = useState<'1W' | '1M' | '1Y'>('1W');
   const [loadingChart, setLoadingChart] = useState(false);
   const [alertVisible, setAlertVisible] = useState(false);
@@ -74,8 +74,8 @@ const handleRangeChange = async (range: '1W' | '1M' | '1Y') => {
   setSelectedRange(range);
   setLoadingChart(true);
 
-  const cached = getChartData(symbol, range);
-  if (cached && cached.length > 0) {
+  const cached = isChartDataStale(symbol, range);
+  if (!cached) {
     console.log(`[CACHE HIT] ${symbol} ${range}`);
     setLoadingChart(false);
     return;
