@@ -18,6 +18,11 @@ const MAPPING = {
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'bookmark.fill': 'bookmark',        // Primary watchlist icon
+  'bookmark': 'bookmark-outline',     // Outline version
+  'star.fill': 'star',                // Alternative favorite/watch icon
+  'star': 'star-outline',             // Outline version
+  'list.bullet': 'list',              // Generic list-style icon
 } as IconMapping;
 
 /**

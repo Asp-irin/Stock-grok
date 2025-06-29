@@ -15,21 +15,20 @@ import PaginationTab from '@/components/PaginationTab';
 import { useWatchlistStore } from '@/store/useWacthlistStore';
 import { useStyles } from '@/hooks/useStyle';
 import AlertModal from '@/components/AlertModal';
+import { EmptyState } from '@/components/EmptyState';
 
 export default function TabTwoScreen() {
   const router = useRouter();
   const { styles, theme } = useStyles();
   const { watchlists, removeWatchlist } = useWatchlistStore();
-    const [alertVisible, setAlertVisible] = useState(false);
-    const [alertMessage, setAlertMessage] = useState('');
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
+    const screenHeight = Dimensions.get('window').height;
+  
+  const ITEM_HEIGHT = 100;
+const verticalPadding = 0;
 
-  const screenHeight = Dimensions.get('window').height;
-
-  const ITEMS_PER_PAGE = useMemo(() => {
-    if (screenHeight > 850) return 12;
-    if (screenHeight > 700) return 10;
-    return 8;
-  }, [screenHeight]);
+const ITEMS_PER_PAGE = Math.floor((screenHeight - verticalPadding) / ITEM_HEIGHT);
 
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [isConfirmVisible, setConfirmVisible] = useState(false);
@@ -66,7 +65,7 @@ export default function TabTwoScreen() {
     setConfirmVisible(false);
   };
 
-const showAlert = (message: string, timeout = 2000) => {
+const showAlert = (message: string, timeout = 1500) => {
     setAlertMessage(message);
     setAlertVisible(true);
     setTimeout(() => {
@@ -79,13 +78,23 @@ const showAlert = (message: string, timeout = 2000) => {
     <SafeAreaView style={styles.watchlistContainer}>
       {/* Header */}
       <View style={styles.watchlistHeaderRow}>
-        <Text style={styles.watchlistHeaderText}>Watchlists</Text>
-        <TouchableOpacity onPress={toggleEditModal}>
-          <Ionicons name="pencil-outline" size={24} color={theme.icon} />
-        </TouchableOpacity>
-      </View>
+  <Text style={styles.watchlistHeaderText}>Watchlists</Text>
+  {watchlists.length > 0 && (
+    <TouchableOpacity onPress={toggleEditModal} style={styles.iconButton}>
+      <Ionicons name="pencil-outline" size={20} color={theme.text} />
+    </TouchableOpacity>
+  )}
+</View>
+
 
       {/* Watchlist Items */}
+      {currentItems.length === 0 ? (
+        <EmptyState
+          title="No Watchlists"
+          subtitle="Create your first watchlist to get started."
+          iconName="cube-outline"
+        />
+      ) :
       <View style={styles.watchlistFlatList}>
         {currentItems.map((item) => (
           <TouchableOpacity
@@ -98,11 +107,11 @@ const showAlert = (message: string, timeout = 2000) => {
           </TouchableOpacity>
         ))}
       </View>
-
-      {/* Pagination */}
+}
       {totalPages > 1 && (
         <PaginationTab page={page} totalPages={totalPages} setPage={setPage} />
       )}
+      
 
       {/* Edit Modal */}
       <Modal
@@ -119,13 +128,14 @@ const showAlert = (message: string, timeout = 2000) => {
         >
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={toggleEditModal} style={styles.backButton}>
-              <Ionicons name="arrow-back" size={24} color={theme.icon} />
+              <Ionicons name="arrow-back" size={24} style={styles.icon} />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Edit Watchlists</Text>
           </View>
 
           {watchlists.length === 0 ? (
-            <Text style={styles.textMuted}>No watchlists available.</Text>
+            // <Text style={styles.textMuted}>No watchlists available.</Text>
+            <EmptyState title='No Watchlists' subtitle='Create your first watchlist to get started.' iconName='cube-outline' />
           ) : (
             <View style={styles.watchlistFlatList}>
               {watchlists.map((watchlist) => (
@@ -141,7 +151,6 @@ const showAlert = (message: string, timeout = 2000) => {
         </SafeAreaView>
       </Modal>
 
-      {/* // need to use the component here */}
       {/* Confirm Modal */}
       <Modal
         isVisible={isConfirmVisible}

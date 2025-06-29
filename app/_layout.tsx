@@ -3,11 +3,11 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-
+import { useThemeStore } from '@/store/useThemeStore';
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+    const { theme } = useThemeStore();
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
@@ -18,7 +18,7 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+  <>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="stockDetail" options={{ headerShown: false }} />
@@ -27,7 +27,7 @@ export default function RootLayout() {
           options={{ headerShown: false, title: 'View All' }} />
         <Stack.Screen name="+not-found" />
       </Stack>
-      <StatusBar style="light" />
-    </ThemeProvider>
+      <StatusBar style={theme=== "dark" ? "light" : "dark"} />
+      </>
   );
 }
