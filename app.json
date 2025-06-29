@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "stock-grok",
+    "name": "Stock-grok",
     "slug": "stock-grok",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/groww.png",
     "scheme": "stockgrok",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

@@ -1,50 +1,109 @@
-# Welcome to your Expo app 👋
+# Stock-Grok – Groww Assignment
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native (Expo) application developed as part of the React Native Intern assignment for Groww. This application enables users to explore top market movers (gainers and losers), track ETFs and stocks, manage personalized watchlists, and view detailed company information through interactive line charts.
 
-## Get started
+With the API limit of 25 calls per day, building this app presented a challenge. What initially appeared as a straightforward implementation evolved into a valuable learning experience in caching strategies and efficient API utilization.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Low-Level Planning
 
-2. Start the app
+Refer to the attached documentation for comprehensive details on trade-offs, architecture decisions, and feature planning.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## Key Features
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### Market Exploration
+- **Explore Tab**: View top gainers and losers in the stock/ETF market
+- **View All Screen**: Access paginated lists of stocks under each explore section
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Portfolio Management
+- **Watchlist Tab**: Create, view, and manage personalized watchlists
+- **Add to Watchlist**: Conveniently add stocks to new or existing watchlists via popup interface
 
-## Get a fresh project
+### Company Analysis
+- **Product Screen**: Display comprehensive company information and price charts for selected stocks/ETFs
 
-When you're ready, run:
+### Technical Implementation
+- **Theme Support**: Seamless switching between light and dark modes
+- **Performance Optimizations**: Implemented API caching with expiration
+- **Robust State Handling**: Proper management of loading, error, and empty states
 
-```bash
-npm run reset-project
-```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Getting Started
 
-## Learn more
+### 1. Clone the Repository
 
-To learn more about developing your project with Expo, look at the following resources:
+bash
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-## Join the community
+### 2. Install Dependencies
 
-Join our community of developers creating universal apps.
+bash
+npm install
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+### 3. Configure Environment Variables
+
+Create a .env file in the root directory and add your Alpha Vantage API key:
+
+env
+ALPHA_VANTAGE_API_KEY=your_api_key_here
+
+
+You can obtain a free API key from: https://www.alphavantage.co/support/#api-key
+
+### 4. Run the App
+
+To run on Android:
+
+bash
+npm run android
+
+Or use Expo:
+
+bash
+npx expo start
+
+
+Available runtime options include:
+- Android Emulator
+- Physical device via Expo Go
+- iOS Simulator (macOS only)
+
+---
+
+## API Integration
+
+The application utilizes Alpha Vantage's financial data APIs:
+Data Endpoints :
+
+- Alpha Intelligence : Top Gainers and Losers
+- Fundamental Data :Company Overview
+- Core Stock APIs:
+  - TIME_SERIES_DAILY
+  - TIME_SERIES_WEEKLY_ADJUSTED
+  - TIME_SERIES_MONTHLY_ADJUSTED
+
+Note: The free API tier enforces a 25-request daily limit. The application implements caching mechanisms to optimize request utilization.
+
+## Media Assets
+
+Access the following resources via the provided Google Drive link or GitHub Releases section:
+
+    -Application screenshots
+
+    -Functional demonstrations
+
+    -Downloadable APK
+---
+
+## Author
+
+Hemanth Kumar (aka Asp-irin)  
+LinkedIn: [https://www.linkedin.com/in/hemanth-kumar-reddy-89668b252/]
+---
