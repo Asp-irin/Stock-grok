@@ -87,7 +87,7 @@ export const useStyles = () => {
       margin: 8,
       alignItems: 'flex-start',
       justifyContent: 'center',
-      minWidth: 160,
+      maxWidth: '50%',
       shadowColor: '#000',
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.12,
