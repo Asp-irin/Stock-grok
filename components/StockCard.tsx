@@ -21,7 +21,7 @@ export function StockCard({ name, symbol, price, changePercent, logoUrl }: Stock
                 source={{ uri: logoUrl || 'https://via.placeholder.com/50' }}
                 style={styles.logo}
             />
-            <Text style={styles.name}>{name}</Text>
+            {/* <Text style={styles.name}>{name}</Text> */}
             <Text style={styles.symbol}>{symbol}</Text>
             <Text style={styles.price}>${price}</Text>
             <Text style={[styles.change, { color: isPositive ? '#28a745' : '#d63031' }]}>
