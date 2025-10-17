@@ -1,15 +1,9 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { Stack } from 'expo-router';
 
 export default function ViewAllLayout() {
-  const { type } = useLocalSearchParams();
-
-return (
-    <Stack
-        screenOptions={{
-            headerShown: true,
-            headerStyle: { backgroundColor: '#121212'}, // set your desired background color here
-            title: type === 'movers' ? 'Top Movers' : type === 'losers' ? 'Top Losers' : 'Stocks',
-        }}
-    />
-);
+  return (
+    <Stack>
+      <Stack.Screen name="[type]" options={{ headerShown: true, title: 'Some' }} />
+    </Stack>
+  );
 }

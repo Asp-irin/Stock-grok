@@ -21,7 +21,10 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="view-all" options={{ headerShown: false }} />
+        <Stack.Screen name="stockDetail" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="view-all"
+          options={{ headerShown: false, title: 'View All' }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="dark" />

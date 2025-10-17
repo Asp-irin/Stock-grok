@@ -1,10 +1,9 @@
 import { useLocalSearchParams, useNavigation } from 'expo-router';
 import React, { useEffect } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import { StockCard } from '../../components/StockCard';
+import { StockCard } from '../../components/StockCard'; // Adjust the import path as needed
 
-const dummyData = {
-  movers: [
+const dummyData = [
     {
       name: 'Apple Inc.',
       symbol: 'AAPL',
@@ -53,56 +52,20 @@ const dummyData = {
       price: '552.15',
       changePercent: '-3.04',
       logoUrl: 'https://logo.clearbit.com/adobe.com',
-    },
-    {
-      name: 'Intel',
-      symbol: 'INTC',
-      price: '34.22',
-      changePercent: '-2.18',
-      logoUrl: 'https://logo.clearbit.com/intel.com',
-    },
-  ],
-  losers: [
-    {
-      name: 'Meta Platforms',
-      symbol: 'META',
-      price: '188.30',
-      changePercent: '-2.81',
-      logoUrl: 'https://logo.clearbit.com/meta.com',
-    },
-    {
-      name: 'Netflix',
-      symbol: 'NFLX',
-      price: '359.12',
-      changePercent: '-1.76',
-      logoUrl: 'https://logo.clearbit.com/netflix.com',
-    },
-    {
-      name: 'Adobe',
-      symbol: 'ADBE',
-      price: '552.15',
-      changePercent: '-3.04',
-      logoUrl: 'https://logo.clearbit.com/adobe.com',
-    },
-    {
-      name: 'Intel',
-      symbol: 'INTC',
-      price: '34.22',
-      changePercent: '-2.18',
-      logoUrl: 'https://logo.clearbit.com/intel.com',
-    },
-  ],
-};
+    }
+];
 
 export default function ViewAllScreen() {
-  const { type } = useLocalSearchParams();
+  var { type } = useLocalSearchParams();
+  type = decodeURIComponent(type as string);
   const navigation = useNavigation();
 
-  const stocks = dummyData[type as 'movers' | 'losers'] || [];
+  const stocks = dummyData;
 
   useEffect(() => {
     navigation.setOptions({
-      title: type === 'movers' ? 'Top Movers' : type === 'losers' ? 'Top Losers' : 'Stocks',
+      // title: type === 'movers' ? 'Top Movers' : type === 'losers' ? 'Top Losers' : 'Stocks',
+      title: type
     });
   }, [type]);
 

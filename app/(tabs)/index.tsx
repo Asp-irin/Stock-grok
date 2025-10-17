@@ -1,10 +1,19 @@
 import { useRouter } from 'expo-router';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { getTopMoversAndLosers } from '../../api/stock'; // adjust path as needed
 import { StockSection } from '../../components/StockSection'; // adjust path as needed
 
 export default function HomeScreen() {
   const router = useRouter();
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getTopMoversAndLosers();
+      // console.log('Top Movers and Losers:', data);
+    };
+
+    fetchData();
+  }, []);
   const dummyStocks = [
     {
       name: 'Apple Inc.',
@@ -53,13 +62,13 @@ export default function HomeScreen() {
         <StockSection
           title="Top Movers"
           stocks={dummyStocks}
-          onPressViewAll={() => router.push('/view-all/movers')}
+          onPressViewAll={() => router.navigate(`/view-all/${encodeURIComponent('Top Movers')}`)}
         />
 
         <StockSection
           title="Top Losers"
           stocks={dummyStocks}
-          onPressViewAll={() => console.log('View All Top Losers')}
+          onPressViewAll={() => router.navigate(`/view-all/${encodeURIComponent('Top Losers')}`)}
         />
       </ScrollView>
     </SafeAreaView>

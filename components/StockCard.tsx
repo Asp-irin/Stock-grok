@@ -1,5 +1,6 @@
+import { useRouter } from 'expo-router'; // Adjust import based on your routing setup
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 type StockCardProps = {
   name: string;
@@ -11,9 +12,11 @@ type StockCardProps = {
 
 export function StockCard({ name, symbol, price, changePercent, logoUrl }: StockCardProps) {
     const isPositive = parseFloat(changePercent as string) >= 0;
+    const router = useRouter();
 
     return (
-        <View style={styles.card}>
+      <TouchableOpacity style={styles.card}   onPress={() => router.navigate(`/stockDetail/${encodeURIComponent(symbol)}`)}>
+        {/* <View style={styles.card}> */}
             <Image
                 source={{ uri: logoUrl || 'https://via.placeholder.com/50' }}
                 style={styles.logo}
@@ -25,7 +28,8 @@ export function StockCard({ name, symbol, price, changePercent, logoUrl }: Stock
                 {isPositive ? '+' : ''}
                 {changePercent}%
             </Text>
-        </View>
+        {/* </View> */}
+        </TouchableOpacity>
     );
 }
 
