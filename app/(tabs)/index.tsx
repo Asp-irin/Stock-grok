@@ -1,49 +1,38 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import { getTopMoversAndLosers } from '../../api/stock'; // adjust path as needed
-import { StockSection } from '../../components/StockSection'; // adjust path as needed
+import { getTopMoversAndLosers } from '../../api/stock';
+import { StockSection } from '../../components/StockSection';
+import { useStockStore } from '../../store/useStockStore'; // ✅ import Zustand store
+import { transformStock } from '../../util/util';
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { topMovers, topLosers, setTopMovers, setTopLosers, isDataStale } = useStockStore();
+  // console.log('Top Movers:', topMovers);
+
   useEffect(() => {
     const fetchData = async () => {
+      // Check if data is stale
+      if (!isDataStale()) {
+        console.log('Using cached data');
+        return; // Data is fresh, no need to fetch
+      }
+      else{
       const data = await getTopMoversAndLosers();
-      // console.log('Top Movers and Losers:', data);
+      if (data) {
+        const movers = data.top_gainers.map(transformStock);
+        const losers = data.top_losers.map(transformStock);
+        console.log("fetched due to call one")
+        setTopMovers(movers);
+        setTopLosers(losers);
+      } else {
+        console.error('Failed to fetch top movers and losers');
+      }
+    }
     };
-
-    fetchData();
+      fetchData();
   }, []);
-  const dummyStocks = [
-    {
-      name: 'Apple Inc.',
-      logo: 'AAPL',
-      price: '189.25',
-      changePercent: '1.53',
-      logoUrl: 'https://logo.clearbit.com/apple.com',
-    },
-    {
-      name: 'Tesla Inc.',
-      logo: 'TSLA',
-      price: '723.55',
-      changePercent: '-2.43',
-      logoUrl: 'https://logo.clearbit.com/tesla.com',
-    },
-    {
-      name: 'Amazon',
-      logo: 'AMZN',
-      price: '132.75',
-      changePercent: '0.75',
-      logoUrl: 'https://logo.clearbit.com/amazon.com',
-    },
-    {
-      name: 'Google',
-      logo: 'GOOGL',
-      price: '2753.15',
-      changePercent: '-0.68',
-      logoUrl: 'https://logo.clearbit.com/google.com',
-    },
-  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -61,20 +50,19 @@ export default function HomeScreen() {
       <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
         <StockSection
           title="Top Movers"
-          stocks={dummyStocks}
+          stocks={topMovers}
           onPressViewAll={() => router.navigate(`/view-all/${encodeURIComponent('Top Movers')}`)}
         />
 
         <StockSection
           title="Top Losers"
-          stocks={dummyStocks}
+          stocks={topLosers}
           onPressViewAll={() => router.navigate(`/view-all/${encodeURIComponent('Top Losers')}`)}
         />
       </ScrollView>
     </SafeAreaView>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -86,7 +74,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8, // If not supported, use marginLeft on searchBar
+    gap: 8,
     marginBottom: 8,
     paddingVertical: 8,
   },

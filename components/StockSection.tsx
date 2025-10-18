@@ -1,15 +1,7 @@
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Stock } from '../util'; // adjust path as needed
 import { StockCard } from './StockCard';
-
-
-type Stock = {
-  name: string;
-  logo: string;
-  price: string;         // or number if you want
-  changePercent: string; // or number if parsed
-  logoUrl?: string;
-};
 
 type StockSectionProps = {
   title: string;
@@ -33,16 +25,15 @@ export const StockSection = ({ title, onPressViewAll, stocks = [] }: StockSectio
       {/* 2-column Grid of StockCards */}
       <FlatList
         data={stocks.slice(0, 4)} // show only top 4
-        keyExtractor={(item) => item.logo}
+        keyExtractor={(item) => item.ticker}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
         renderItem={({ item }) => (
           <StockCard
-            name={item.name}
-            symbol={item.logo}
+            ticker={item.ticker}
             price={item.price}
+            changePrice={item.changePrice}
             changePercent={item.changePercent}
-            logoUrl={item.logoUrl}
           />
         )}
         scrollEnabled={false} // since it's inside a scrollable parent

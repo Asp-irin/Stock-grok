@@ -1,16 +1,19 @@
+import { useWatchlistStore } from '@/store/useWacthlistStore';
 import { useRouter } from 'expo-router';
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const dummyWishlists = [
-  { id: '1', name: 'Tech Stocks' },
-  { id: '2', name: 'ETFs to Watch' },
-  { id: '3', name: 'Dividend Kings' },
-];
+// const dummyWishlists = [
+//   { id: '1', name: 'Tech Stocks' },
+//   { id: '2', name: 'ETFs to Watch' },
+//   { id: '3', name: 'Dividend Kings' },
+// ];
 
 export default function TabTwoScreen() {
     const router = useRouter();
+  const { watchlists } = useWatchlistStore();
+
   return (
     <SafeAreaView style={styles.container}>
       {/* Header */}
@@ -18,8 +21,8 @@ export default function TabTwoScreen() {
 
       {/* Wishlist Items */}
       <FlatList
-        data={dummyWishlists}
-        keyExtractor={(item) => item.id}
+        data={watchlists}
+        keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
           <TouchableOpacity style={styles.listItem} onPress={() => router.push(`/view-all/${item.name}`)}>
             <Text style={styles.listText}>{item.name}</Text>
