@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware';
 import { Stock } from '../util'; // Adjust path as needed
 
 type StockStore = {
-  topMovers: Stock[];
+  topMovers: String[];
   topLosers: Stock[];
   lastFetched: number | null;
   setTopMovers: (stocks: Stock[]) => void;
@@ -98,7 +98,7 @@ export const useStockStore = create<StockStore>()(
       lastFetched: null,
 
       setTopMovers: (stocks) =>
-        set({ topMovers: stocks, lastFetched: Date.now() }),
+        set({ topMovers: stocks.map((item)=> item.ticker), lastFetched: Date.now() }),
 
       setTopLosers: (stocks) =>
         set({ topLosers: stocks, lastFetched: Date.now() }),

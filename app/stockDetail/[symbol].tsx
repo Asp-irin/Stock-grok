@@ -27,6 +27,7 @@ const [selectedStockSymbol, setSelectedStockSymbol] = useState<string | null>(nu
 const [checkState, setCheckState] = useState<{ [name: string]: boolean }>({});
 const [newWatchlistName, setNewWatchlistName] = useState('');
 const [error, setError] = useState('');
+const [stockData, setStockData] = useState<Stock>();
 
   // setStockDetail(getStockDetail("IBM"));
 
@@ -90,6 +91,10 @@ const [error, setError] = useState('');
         }
         else{
           const rawStockDetail = await getCompanyOverview(symbol as string);
+          rawStockDetail.ticker = symbol;
+          rawStockDetail.price = price;
+          rawStockDetail.changePrice = changePrice;
+          rawStockDetail.changePercent = changePercent;
           console.log('Fetched Stock Detail stockDetail:', rawStockDetail);
           // clean the stockDetail as well
           setlocalStockDetail(transformStockDetail(rawStockDetail));
