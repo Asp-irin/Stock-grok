@@ -24,12 +24,7 @@ export default function ViewAllScreen() {
 useEffect(() => {
   navigation.setOptions({ headerTitle: `${type}` });
 
-  const tickers =
-    type === 'Top Movers'
-      ? topMovers
-      : type === 'Top Losers'
-      ? topLosers
-      : getStocksFromWatchlist(type);
+  const tickers = getStocksFromWatchlist(type);
 
   const fullData = tickers
     .map((ticker) => {
