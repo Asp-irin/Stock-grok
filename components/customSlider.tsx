@@ -2,11 +2,19 @@ import React from 'react';
 import { Text, View } from 'react-native';
 
 export default function CustomSlider({low,high,current}: {low?: number, high?: number, current?: number}) {
-   low = 50;
-   high = 100;
-   current = 75;
+const isInvalid = (val: any) => val === undefined || isNaN(val);
 
-  const directionX = ((current - low) / (high - low)) * 100;
+if (isInvalid(low) || isInvalid(high) || isInvalid(current)) {
+  return null;
+}
+
+const safeLow = low as number;
+const safeHigh = high as number;
+const safeCurrent = current as number;
+
+console.log('CustomSlider', { low: safeLow, high: safeHigh, current: safeCurrent });
+
+const directionX = ((safeCurrent - safeLow) / (safeHigh - safeLow)) * 100;
 
   return (
     <View
@@ -56,9 +64,9 @@ export default function CustomSlider({low,high,current}: {low?: number, high?: n
           marginTop: 8,
         }}
       >
-        <Text style={{ fontSize: 12 }}>₹{low}</Text>
+        <Text style={{ fontSize: 12 }}>$ {low}</Text>
         {/* <Text style={{ fontSize: 12, color: '#007AFF', fontWeight: 'bold' }}>₹{current}</Text> */}
-        <Text style={{ fontSize: 12 }}>₹{high}</Text>
+        <Text style={{ fontSize: 12 }}>$ {high}</Text>
       </View>
 
       {/* Labels */}
