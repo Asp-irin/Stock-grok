@@ -1,86 +1,55 @@
 import React from 'react';
 import { Text, View } from 'react-native';
+import { useStyles } from '../hooks/useStyle';
 
-export default function CustomSlider({low,high,current}: {low?: number, high?: number, current?: number}) {
-const isInvalid = (val: any) => val === undefined || isNaN(val);
+export default function CustomSlider({
+  low,
+  high,
+  current,
+}: {
+  low?: number;
+  high?: number;
+  current?: number;
+}) {
+  const { styles, theme } = useStyles();
 
-if (isInvalid(low) || isInvalid(high) || isInvalid(current)) {
-  return null;
-}
+  const isInvalid = (val: any) => val === undefined || isNaN(val);
 
-const safeLow = low as number;
-const safeHigh = high as number;
-const safeCurrent = current as number;
+  if (isInvalid(low) || isInvalid(high) || isInvalid(current)) {
+    return null;
+  }
 
-console.log('CustomSlider', { low: safeLow, high: safeHigh, current: safeCurrent });
+  const safeLow = low as number;
+  const safeHigh = high as number;
+  const safeCurrent = current as number;
 
-const directionX = ((safeCurrent - safeLow) / (safeHigh - safeLow)) * 100;
+  const directionX = ((safeCurrent - safeLow) / (safeHigh - safeLow)) * 100;
 
   return (
-    <View
-      style={{
-        // paddingHorizontal: 20,
-        alignItems: 'center',
-        // borderWidth: 1,
-        // borderColor: '#ccc',
-        borderRadius: 10,
-        marginVertical: 10,
-        backgroundColor: 'white',
-      }}
-    >
-      {/* <Text style={{ marginBottom: 16, fontWeight: '600' }}>Custom Slider Component</Text> */}
-
-      {/* Graph Line + Arrow */}
-      <View style={{ width: '100%', alignItems: 'center', position: 'relative' }}>
-        {/* Slider line */}
+    <View style={styles.stockDetailSliderContainer}>
+      {/* Line + Arrow */}
+      <View style={styles.stockDetailSliderTrackWrapper}>
+        <View style={styles.stockDetailSliderTrack} />
         <View
-          style={{
-            width: '100%',
-            height: 4,
-            backgroundColor: '#ccc',
-            borderRadius: 2,
-          }}
-        />
-
-        {/* Arrow indicating current */}
-        <View
-          style={{
-            position: 'absolute',
-            left: `${directionX}%`,
-            transform: [{ translateX: -7 }],
-            top: -14,
-          }}
+          style={[
+            styles.stockDetailSliderArrow,
+            { left: `${directionX}%`, transform: [{ translateX: -7 }] },
+          ]}
         >
-          <Text style={{ color: '#007AFF', fontWeight: 'bold' }}>▼</Text>
+          <Text style={{ color: theme.primary, fontWeight: 'bold' }}>▼</Text>
         </View>
       </View>
 
-      {/* Value numbers */}
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          width: '100%',
-          marginTop: 8,
-        }}
-      >
-        <Text style={{ fontSize: 12 }}>$ {low}</Text>
-        {/* <Text style={{ fontSize: 12, color: '#007AFF', fontWeight: 'bold' }}>₹{current}</Text> */}
-        <Text style={{ fontSize: 12 }}>$ {high}</Text>
+      {/* Values */}
+      <View style={styles.stockDetailSliderRangeRow}>
+        <Text style={styles.stockDetailSliderRangeText}>$ {low}</Text>
+        <Text style={styles.stockDetailSliderRangeText}>$ {high}</Text>
       </View>
 
       {/* Labels */}
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          width: '100%',
-          marginTop: 2,
-        }}
-      >
-        <Text style={{ fontSize: 10, color: '#555' }}>52-Week Low</Text>
-        {/* <Text style={{ fontSize: 10, color: '#555' }}>Current</Text> */}
-        <Text style={{ fontSize: 10, color: '#555' }}>52-Week High</Text>
+      <View style={styles.stockDetailSliderLabelRow}>
+        <Text style={styles.stockDetailSliderLabelText}>52-Week Low</Text>
+        <Text style={styles.stockDetailSliderLabelText}>52-Week High</Text>
       </View>
     </View>
   );
