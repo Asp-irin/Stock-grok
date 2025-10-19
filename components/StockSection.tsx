@@ -1,8 +1,9 @@
 import { useStockStore } from '@/store/useStockStore';
-import React, { useEffect } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { Stock } from '../util'; // adjust path as needed
+import React, { useEffect, useState } from 'react';
+import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { Stock } from '../util';
 import { StockCard } from './StockCard';
+import { useStyles } from '../hooks/useStyle';
 
 type StockSectionProps = {
   title: string;
@@ -11,37 +12,35 @@ type StockSectionProps = {
 };
 
 export const StockSection = ({ title, onPressViewAll, stocks = [] }: StockSectionProps) => {
-  const {getStock} = useStockStore();
+  const { getStock } = useStockStore();
+  const [stockData, setStockData] = useState<Stock[]>([]);
+  const { styles, theme } = useStyles();
 
-  const [stockData, setStockData] = React.useState<Stock[]>([]);
-
-    useEffect(() => {
-    const resolvedStocks = stocks
-      .map(ticker => {
+  useEffect(() => {
+    const resolved = stocks
+      .map((ticker) => {
         const stock = getStock(ticker);
         if (!stock) console.warn(`No stock data found for ticker: ${ticker}`);
         return stock;
       })
       .filter((s): s is Stock => !!s);
 
-    setStockData(resolvedStocks);
+    setStockData(resolved);
   }, [stocks, getStock]);
 
   return (
-    <View style={styles.section}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>{title}</Text>
+    <View style={{ marginBottom: 24 }}>
+      <View style={styles.rowSpaceBetween}>
+        <Text style={[styles.sectionTitle, { color: theme.text }]}>{title}</Text>
         {onPressViewAll && (
           <TouchableOpacity onPress={onPressViewAll}>
-            <Text style={styles.viewAll}>View All</Text>
+            <Text style={[styles.viewAll, { color: theme.secondaryText }]}>View All {'>'}</Text>
           </TouchableOpacity>
         )}
       </View>
 
-      {/* 2-column Grid of StockCards */}
       <FlatList
-        data={stockData.slice(0, 4)} // show only top 4
+        data={stockData.slice(0, 4)}
         keyExtractor={(item) => item.ticker}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
@@ -53,29 +52,8 @@ export const StockSection = ({ title, onPressViewAll, stocks = [] }: StockSectio
             changePercent={item.changePercent}
           />
         )}
-        scrollEnabled={false} // since it's inside a scrollable parent
+        scrollEnabled={false}
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  section: {
-    marginBottom: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-    paddingHorizontal: 4,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  viewAll: {
-    fontSize: 14,
-    color: '#007AFF',
-  },
-});

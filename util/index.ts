@@ -11,7 +11,7 @@ export interface PricePoint {
   price: number;   // 150.25
 }
 
-export interface Daily {
+export interface TimeframeData {
   data: PricePoint[];
   lastUpdated: string;
 }
@@ -39,9 +39,9 @@ export interface StockDetail extends Stock {
   dividendYield: number;         // 0.96
   profitMargin: number;    // 0.25
   // Chart data
-  daily: Daily;
-  weekly: Weekly;
-  monthly: Monthly;
+  // daily: Daily;
+  // weekly: Weekly;
+  // monthly: Monthly;
 }
 
 export interface Watchlist {

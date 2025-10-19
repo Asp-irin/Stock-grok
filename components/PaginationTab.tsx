@@ -1,5 +1,7 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useStyles } from '../hooks/useStyle';
 
 type PaginationProps = {
   page: number;
@@ -7,39 +9,42 @@ type PaginationProps = {
   setPage: (newPage: number) => void;
 };
 
-function Pagination({ page, totalPages, setPage }: PaginationProps) {
-    if (totalPages <= 0) return null;
+export default function Pagination({ page, totalPages, setPage }: PaginationProps) {
+  const { styles, theme } = useStyles();
 
-    return (
-        <View style={styles.paginationContainer}>
-            <Button
-                title="Previous"
-                onPress={() => setPage(Math.max(page - 1, 1))}
-                disabled={page === 1}
-            />
-            <Text style={styles.pageText}>
-                Page {page} of {totalPages}
-            </Text>
-            <Button
-                title="Next"
-                onPress={() => setPage(Math.min(page + 1, totalPages))}
-                disabled={page === totalPages}
-            />
-        </View>
-    );
+  if (totalPages <= 1) return null;
+
+  return (
+    <View style={styles.paginationContainer}>
+      <TouchableOpacity
+        style={[styles.arrowButton, page === 1 && styles.disabledButton]}
+        onPress={() => setPage(Math.max(page - 1, 1))}
+        disabled={page === 1}
+      >
+        <Ionicons
+          name="chevron-back"
+          size={20}
+          color={page === 1 ? theme.secondaryText : theme.text}
+        />
+      </TouchableOpacity>
+
+      <View style={styles.pageBox}>
+        <Text style={styles.pageNumber}>{page}</Text>
+        <Text style={styles.divider}> / </Text>
+        <Text style={styles.pageTotal}>{totalPages}</Text>
+      </View>
+
+      <TouchableOpacity
+        style={[styles.arrowButton, page === totalPages && styles.disabledButton]}
+        onPress={() => setPage(Math.min(page + 1, totalPages))}
+        disabled={page === totalPages}
+      >
+        <Ionicons
+          name="chevron-forward"
+          size={20}
+          color={page === totalPages ? theme.secondaryText : theme.text}
+        />
+      </TouchableOpacity>
+    </View>
+  );
 }
-
-const styles = StyleSheet.create({
-  paginationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 0,
-  },
-  pageText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-});
-
-export default Pagination;

@@ -1,72 +1,54 @@
 import * as scale from 'd3-scale';
 import * as shape from 'd3-shape';
-import React, { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import React from 'react';
+import { Text, View } from 'react-native';
 import { Grid, LineChart, XAxis, YAxis } from 'react-native-svg-charts';
+import { useChartStore } from '@/store/useStockChartData';
 
-type SeriesProps = {
-  date: Date;
-  value: number;  
-}
+export default function StockChart({
+  symbol,
+  range,
+  loading,
+}: {
+  symbol: string;
+  range: '1W' | '1M' | '1Y';
+  loading: boolean;
+}) {
+  const { getChartData } = useChartStore();
+  const rawData = getChartData(symbol, range);
 
-// 📦 Your data here (dummy samples)
-const dailyData = {
-  "2025-06-25": "291.06",
-  "2025-06-24": "293.79",
-  "2025-06-23": "289.18",
-  "2025-06-21": "283.21",
-  "2025-06-20": "280.97",
-};
+  if (loading) {
+    return (
+      <View style={{ height: 220, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
-const weeklyData = {
-  "2025-06-25": "291.06",
-  "2025-06-20": "280.97",
-  "2025-06-13": "277.22",
-  "2025-06-06": "268.87",
-};
+  if (!rawData || rawData.length === 0) {
+    return (
+      <View style={{ height: 220, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>No chart data available</Text>
+      </View>
+    );
+  }
 
-const monthlyData = {
-  "2025-06-25": "291.06",
-  "2025-05-30": "259.06",
-  "2025-04-30": "241.82",
-  "2025-03-31": "248.66",
-  "2025-02-28": "252.44",
-};
+  const chartData = rawData.map((d: { date: string | number | Date; price: any; }) => ({
+    date: new Date(d.date),
+    value: d.price,
+  }));
 
-// 🔧 Common formatter
-const parseChartData = (series: Record<string, string>) =>
-  Object.entries(series)
-    .map(([date, value]) => ({
-      date: new Date(date),
-      value: parseFloat(value),
-    }))
-    .sort((a, b) => a.date.getTime() - b.date.getTime());
-
-
-export default function StockChart() {
-  const [range, setRange] = useState<'1D' | '1W' | '1M' | '1Y'>('1D');
-
-  const dataMap = {
-    '1D': dailyData,
-    '1W': weeklyData,
-    '1M': monthlyData,
-    '1Y': monthlyData, // Reuse monthlyData if yearly is similar
-  };
-
-  const chartData = parseChartData(dataMap[range]);
-  const yValues = chartData.map(d => d.value);
+  const yValues = chartData.map((d: { value: any; }) => d.value);
   const minY = Math.min(...yValues) - 5;
   const maxY = Math.max(...yValues) + 5;
 
   return (
-    <View style={{ paddingHorizontal: 16  }}>
-      {/* Toggle Buttons */}
-
+    <View style={{ paddingHorizontal: 16 }}>
       {/* Chart */}
       <View style={{ height: 220, flexDirection: 'row' }}>
         <YAxis
           data={chartData}
-          yAccessor={({ item }) => item.value}
+          yAccessor={({ item }: { item: { value: number } }) => item.value}
           contentInset={{ top: 20, bottom: 20 }}
           svg={{ fontSize: 10, fill: '#666' }}
           min={minY}
@@ -76,8 +58,8 @@ export default function StockChart() {
         <LineChart
           style={{ flex: 1, marginLeft: 10 }}
           data={chartData}
-          yAccessor={({ item }) => item.value}
-          xAccessor={({ item }) => item.date.getTime()}
+          yAccessor={({ item }: { item: { date: Date; value: number } }) => item.value}
+          xAccessor={({ item }: { item: { date: Date; value: number } }) => item.date.getTime()}
           xScale={scale.scaleTime}
           svg={{ stroke: '#007AFF', strokeWidth: 3 }}
           contentInset={{ top: 20, bottom: 20 }}
@@ -91,34 +73,15 @@ export default function StockChart() {
       <XAxis
         style={{ marginTop: 10, marginHorizontal: 30 }}
         data={chartData}
-        xAccessor={({ item }) => item.date.getTime()}
+        xAccessor={({ item }: { item: { date: Date; value: number } }) => item.date.getTime()}
         scale={scale.scaleTime}
         numberOfTicks={chartData.length}
         formatLabel={(value) =>
           new Date(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
         }
-        svg={{ fontSize: 10, fill: '#666' }}
-        contentInset={{ left: 16, right: 16 }}
+        svg={{ fontSize: 8, fill: '#666' }}
+        contentInset={{ left: 16, right: 10 }}
       />
-
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12, marginHorizontal:114, borderWidth: 1, borderColor: '#ccc', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20 }}>
-        {['1D', '1W', '1M', '1Y'].map((opt) => (
-          <TouchableOpacity
-            key={opt}
-            onPress={() => setRange(opt as any)}
-            style={{
-              paddingHorizontal: 6,
-              paddingVertical: 6,
-              backgroundColor: range === opt ? '#007AFF' : '#f0f0f0',
-              borderRadius: 20,
-            }}
-          >
-            <Text style={{ color: range === opt ? 'white' : '#333', fontSize: 6 }}>{opt}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
     </View>
-    
   );
 }
