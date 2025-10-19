@@ -1,4 +1,5 @@
-import React from 'react';
+import { useStockStore } from '@/store/useStockStore';
+import React, { useEffect } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Stock } from '../util'; // adjust path as needed
 import { StockCard } from './StockCard';
@@ -6,10 +7,26 @@ import { StockCard } from './StockCard';
 type StockSectionProps = {
   title: string;
   onPressViewAll?: () => void;
-  stocks: Stock[];
+  stocks: string[];
 };
 
 export const StockSection = ({ title, onPressViewAll, stocks = [] }: StockSectionProps) => {
+  const {getStock} = useStockStore();
+
+  const [stockData, setStockData] = React.useState<Stock[]>([]);
+
+    useEffect(() => {
+    const resolvedStocks = stocks
+      .map(ticker => {
+        const stock = getStock(ticker);
+        if (!stock) console.warn(`No stock data found for ticker: ${ticker}`);
+        return stock;
+      })
+      .filter((s): s is Stock => !!s);
+
+    setStockData(resolvedStocks);
+  }, [stocks, getStock]);
+
   return (
     <View style={styles.section}>
       {/* Header */}
@@ -24,7 +41,7 @@ export const StockSection = ({ title, onPressViewAll, stocks = [] }: StockSectio
 
       {/* 2-column Grid of StockCards */}
       <FlatList
-        data={stocks.slice(0, 4)} // show only top 4
+        data={stockData.slice(0, 4)} // show only top 4
         keyExtractor={(item) => item.ticker}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
