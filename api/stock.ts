@@ -71,7 +71,7 @@ export async function getStockDataWeekly(symbol: string) {
   try {
     const res = await axios.get(BASE_URL, {
       params: {
-        function: 'TIME_SERIES_WEEKLY_ADJUSTED',
+        function: 'TIME_SERIES_WEEKLY',
         symbol,
         apikey: ALPHA_VANTAGE_API_KEY,
       },
@@ -92,7 +92,7 @@ export async function getStockDataMonthly(symbol: string) {
   try {
     const res = await axios.get(BASE_URL, {
       params: {
-        function: 'TIME_SERIES_MONTHLY_ADJUSTED',
+        function: 'TIME_SERIES_MONTHLY',
         symbol,
         apikey: ALPHA_VANTAGE_API_KEY,
       },
