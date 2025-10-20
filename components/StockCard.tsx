@@ -1,31 +1,39 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
-import { Stock } from '../util';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { useStyles } from '../hooks/useStyle';
+import { Stock } from '@/util';
+import { Ionicons } from '@expo/vector-icons';
 
 export function StockCard({ ticker, price, changePrice, changePercent }: Stock) {
-  const isPositive = changePercent >= 0;
+  const { styles, theme } = useStyles();
   const router = useRouter();
-  const { styles } = useStyles();
+  const isPositive = changePercent >= 0;
 
   return (
     <TouchableOpacity
-      style={styles.card}
-      onPress={() => router.navigate(`/stockDetail/${encodeURIComponent(ticker)}`)}
+      style={styles.stockCard}
+      onPress={() => router.push(`/stockDetail/${encodeURIComponent(ticker)}`)}
     >
-      <Text style={styles.symbol}>{ticker}</Text>
-      <Text style={styles.price}>₹{price.toLocaleString()}</Text>
+      <View style={styles.logoCircle}>
+        <Text style={styles.logoText}>
+          {ticker?.[0]?.toUpperCase() ?? ''}
+        </Text>
+      </View>
 
-      <Text style={isPositive ? styles.changePositive : styles.changeNegative}>
-        {isPositive ? '+' : ''}
-        ₹{changePrice.toFixed(2)}
-      </Text>
+      <Text style={styles.stockCardTicker}>{ticker}</Text>
+      <Text style={styles.stockCardPrice}>${price}</Text>
 
-      <Text style={isPositive ? styles.changePositive : styles.changeNegative}>
-        {isPositive ? '+' : ''}
-        {changePercent.toFixed(2)}%
-      </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+        <Text style={isPositive ? styles.changePositive : styles.changeNegative}>
+          {changePercent.toFixed(4)}%
+        </Text>
+        {isPositive ? (
+          <Ionicons name="caret-up" size={14} color={theme.success} />
+        ) : (
+          <Ionicons name="caret-down" size={14} color={theme.danger} />
+        )}
+      </View>
     </TouchableOpacity>
   );
 }

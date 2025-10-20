@@ -14,7 +14,7 @@ type StockDetailStore = {
 };
 
 
-const DEFAULT_MAX_AGE = 30 * 60 * 1000; // 30 minutes
+const DEFAULT_MAX_AGE = 48* 60 * 60 * 1000; // 30 minutes
 
 // const StockDetails = [{
 //     "Symbol": "IBM",

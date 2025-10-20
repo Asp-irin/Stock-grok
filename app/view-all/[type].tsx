@@ -12,8 +12,8 @@ import PaginationTab from '@/components/PaginationTab';
 import ConfirmModal from '@/components/ConfirmModal';
 import AlertModal from '@/components/AlertModal';
 import { useStyles } from '../../hooks/useStyle';
-
-const ITEMS_PER_PAGE = 10;
+import { Dimensions } from 'react-native';
+import { EmptyState } from '@/components/EmptyState';
 
 export default function ViewAllScreen() {
   const navigation = useNavigation();
@@ -31,6 +31,15 @@ export default function ViewAllScreen() {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
+  const screenHeight = Dimensions.get('window').height;
+
+// Adjust based on your card height (approx)
+const ITEM_HEIGHT = 200;
+const verticalPadding = 0;
+
+const ITEMS_PER_PAGE = Math.floor((screenHeight - verticalPadding) / ITEM_HEIGHT) * 2; // 2 columns
+
+
   const toggleEditModal = () => setEditModalVisible(!isEditModalVisible);
 
   const handleRemoveStock = (symbol: string) => {
@@ -39,7 +48,7 @@ export default function ViewAllScreen() {
     setAllData(updated);
   };
 
-  const showAlert = (message: string, timeout = 2000) => {
+  const showAlert = (message: string, timeout = 1500) => {
     setAlertMessage(message);
     setAlertVisible(true);
     setTimeout(() => {
@@ -72,23 +81,32 @@ export default function ViewAllScreen() {
 
   useLayoutEffect(() => {
     const isDefaultList = type === 'Top Movers' || type === 'Top Losers';
+    // console.log(currentPageData);
     navigation.setOptions({
       headerRight: () =>
-        !isDefaultList ? (
+        !isDefaultList && currentPageData.length>0 ? (
           <TouchableOpacity onPress={toggleEditModal}>
             <Ionicons name="pencil-outline" size={22} color={theme.text} />
           </TouchableOpacity>
         ) : null,
     });
-  }, [navigation, type]);
+  }, [navigation, type, currentPageData]);
 
   const totalPages = Math.ceil(allData.length / ITEMS_PER_PAGE);
 
   return (
     <View style={styles.container}>
+      {currentPageData.length === 0 ? (
+        <EmptyState
+          title={`No Stocks in ${type}`}
+          subtitle={`Add stocks to your watchlist to see them here.`}
+          iconName="cube-outline"
+        />
+      ) : (
       <FlatList
         data={currentPageData}
         numColumns={2}
+        style={{ flexGrow: 0, marginBottom: 20 }}
         columnWrapperStyle={{ justifyContent: 'space-between' }}
         keyExtractor={(item) => item.ticker}
         renderItem={({ item }) => (
@@ -100,6 +118,7 @@ export default function ViewAllScreen() {
           />
         )}
       />
+      )}
 
       {totalPages > 1 && (
         <PaginationTab page={page} totalPages={totalPages} setPage={setPage} />
@@ -129,8 +148,8 @@ export default function ViewAllScreen() {
 
       {/* Body */}
       {allData.length === 0 ? (
-        <Text style={styles.textMuted}>No stocks to show</Text>
-      ) : (
+<EmptyState title='No Stocks' subtitle='Add stocks to your watchlist to see them here.' iconName='cube-outline' />
+) : (
         <View style={{ flex: 1 }}>
           {allData.map((stock) => (
             <View key={stock.ticker} style={styles.editStockRow}>

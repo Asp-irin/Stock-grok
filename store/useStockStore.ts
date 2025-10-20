@@ -15,7 +15,7 @@ type StockStore = {
   isDataStale: (maxAge?: number) => boolean;
 };
 
-const DEFAULT_MAX_AGE = 24* 60 * 60 * 1000; // 24 hours
+const DEFAULT_MAX_AGE = 48* 60 * 60 * 1000; // 24 hours
 
 export const useStockStore = create<StockStore>()(
   persist(

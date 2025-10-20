@@ -36,7 +36,7 @@ export default function CustomSlider({
             { left: `${directionX}%`, transform: [{ translateX: -7 }] },
           ]}
         >
-          <Text style={{ color: theme.primary, fontWeight: 'bold' }}>▼</Text>
+          <Text style={{ color: theme.primary, fontWeight: 'bold',fontSize:20 }}>▼</Text>
         </View>
       </View>
 

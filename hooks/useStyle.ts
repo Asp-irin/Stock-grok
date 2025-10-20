@@ -1,10 +1,33 @@
 import { StyleSheet } from 'react-native';
 import { Colors, Theme } from '@/constants/theme';
+import { useThemeStore } from '@/store/useThemeStore';
 
 export const useTheme = () => {
-  const theme: Theme = 'dark'; // 👈 Force dark theme globally
+  const theme = useThemeStore((state) => state.theme);
   return Colors[theme];
 };
+
+const avatarColors = [
+  '#1C2B27', // teal-green
+  '#4B3B2F', // brown
+  '#0F2952', // navy
+  '#372049', // purple
+  '#264C28', // dark green
+  '#3B2F2F', // dark brown
+  '#1D2F35', // blue-gray
+  '#443C2E', // ochre
+  '#2A3942', // steel blue
+];
+
+function getColorFromTicker(ticker: string): string {
+  if (!ticker) return avatarColors[0];
+  let hash = 0;
+  for (let i = 0; i < ticker.length; i++) {
+    hash = ticker.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return avatarColors[Math.abs(hash) % avatarColors.length];
+}
+
 
 export const useStyles = () => {
   const theme = useTheme();
@@ -32,6 +55,7 @@ export const useStyles = () => {
     header: {
       flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'space-between',
       gap: 8,
       marginBottom: 8,
       paddingVertical: 8,
@@ -88,21 +112,17 @@ export const useStyles = () => {
       alignItems: 'flex-start',
       justifyContent: 'center',
       maxWidth: '50%',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.12,
-      shadowRadius: 3,
-      elevation: 4,
       borderWidth: 1,
       borderColor: theme.border,
       gap: 4,
     },
 paginationContainer: {
   flexDirection: 'row',
+  flexGrow: 1,
   alignItems: 'center',
   justifyContent: 'center',
   paddingVertical: 12,
-  gap: 16,
+  gap: 32,
 },
 arrowButton: {
   padding: 10,
@@ -330,13 +350,13 @@ watchlistFlatList: {
     },
     stockDetailSliderTrack: {
       width: '100%',
-      height: 4,
-      backgroundColor: theme.border,
+      height: 2,
+      backgroundColor: theme.secondaryText,
       borderRadius: 2,
     },
     stockDetailSliderArrow: {
       position: 'absolute',
-      top: -14,
+      top: -22,
     },
     stockDetailSliderRangeRow: {
       flexDirection: 'row',
@@ -388,13 +408,13 @@ popUpListItemText: {
   color: theme.text,
 },
 popUpCreateTextLink: {
-  color: theme.success,
-  fontWeight: '600',
+  color: theme.primary,
+  fontWeight: 'bold',
   fontSize: 16,
   marginBottom: 18,
 },
 popUpSaveButton: {
-  backgroundColor: theme.success,
+  backgroundColor: theme.primary,
   paddingVertical: 14,
   borderRadius: 8,
   alignItems: 'center',
@@ -431,7 +451,7 @@ popUpErrorText: {
   marginBottom: 4,
 },
 popUpCreateButton: {
-  backgroundColor: theme.success,
+  backgroundColor: theme.primary,
   paddingVertical: 12,
   borderRadius: 8,
   alignItems: 'center',
@@ -443,6 +463,219 @@ popUpCreateButtonText: {
   color: 'white',
   fontWeight: 'bold',
 },
+stockDetailHeader: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  paddingHorizontal: 22,
+  marginBottom: 20,
+},
+
+stockDetailCompanyInfo: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: 22,
+},
+
+stockDetailCompanyLogo: {
+  width: 48,
+  height: 48,
+  marginRight: 12,
+  borderWidth: 2,
+  borderColor: theme.border,
+  borderRadius: 8,
+},
+
+stockDetailCompanyText: {
+  flex: 1,
+  paddingRight: 12,
+},
+
+stockDetailCompanyName: {
+  fontWeight: 'bold',
+  fontSize: 18,
+  color: theme.text,
+},
+
+stockDetailCompanyTicker: {
+  color: theme.secondaryText,
+  fontSize: 13,
+},
+stockDetailRangeContainer: {
+  flexDirection: 'row',
+  justifyContent: 'center',
+  gap: 12,
+  marginVertical: 16,
+},
+
+stockDetailRangeButton: {
+  paddingHorizontal: 6,
+  paddingVertical: 6,
+  borderRadius: 13,
+  backgroundColor: theme.border,
+},
+
+stockDetailRangeButtonActive: {
+  backgroundColor: theme.primary,
+},
+
+stockDetailRangeButtonText: {
+  fontWeight: '500',
+  color: theme.text,
+  fontSize: 10,
+},
+
+stockDetailRangeButtonTextActive: {
+  color: 'white',
+},
+
+stockDetailInfoBox: {
+  borderWidth: 1,
+  borderColor: theme.border,
+  borderRadius: 12,
+  marginHorizontal: 8,
+  padding: 16,
+  backgroundColor: theme.card,
+},
+
+stockDetailInfoTitle: {
+  fontWeight: '600',
+  marginBottom: 8,
+  fontSize: 16,
+  color: theme.text,
+},
+
+stockDetailInfoDescription: {
+  color: theme.secondaryText,
+  marginBottom: 16,
+  fontSize: 11,
+},
+
+stockDetailTagsContainer: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  gap: 8,
+  marginBottom: 16,
+  width: '100%',
+},
+
+stockDetailTagIndustry: {
+  backgroundColor: theme.primary,
+  paddingHorizontal: 10,
+  paddingVertical: 4,
+  borderRadius: 18,
+  fontSize: 8,
+  color: 'white',
+},
+
+stockDetailTagSector: {
+  backgroundColor: theme.success,
+  paddingHorizontal: 10,
+  paddingVertical: 4,
+  borderRadius: 18,
+  fontSize: 8,
+  color: 'white',
+},
+
+stockDetailStatsGrid: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  flexWrap: 'wrap',
+  rowGap: 1,
+},
+
+stockDetailStatItem: {
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: 4,
+  marginBottom: 8,
+},
+
+stockDetailStatTitle: {
+  fontSize: 12,
+  fontWeight: '500',
+  color: theme.secondaryText,
+},
+
+stockDetailStatValue: {
+  fontSize: 13,
+  fontWeight: 'bold',
+  color: theme.text,
+},
+ logoCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: theme.primary, // dark teal like in the image
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight:8
+  },
+  logoText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize: 18,
+  },
+  stockCard: {
+  width: '46%', // two in a row with margin
+  padding: 16,
+  borderRadius: 16,
+  backgroundColor: theme.card,
+  margin: 8,
+  alignItems: 'flex-start',
+  justifyContent: 'center',
+  gap: 6,
+  borderWidth: 1,
+  borderColor: theme.border,
+},
+
+stockCardTicker: {
+  fontSize: 16,
+  fontWeight: 'bold',
+  color: theme.text,
+},
+
+stockCardPrice: {
+  fontSize: 14,
+  color: theme.text,
+},
+stockDetailPriceContainer: {
+  alignItems: 'flex-end',
+  gap: 4,
+},
+
+stockDetailPrice: {
+  fontSize: 18,
+  fontWeight: 'bold',
+  color: theme.text,
+},
+
+priceChangeRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: 4,
+},
+changePositivePercent: {
+  fontSize: 14,
+  fontWeight: '500',
+  color: theme.success,
+},
+
+changeNegativePercent: {
+  fontSize: 14,
+  fontWeight: '500',
+  color: theme.danger,
+},
+iconButton: {
+  padding: 6,
+  borderRadius: 8,
+  backgroundColor: 'transparent',
+},
+icon: {
+  color: '#444', // light theme
+},
+
+
 
 
   });
