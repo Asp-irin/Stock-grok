@@ -1,10 +1,8 @@
 import axios from 'axios';
-import dotenv from 'dotenv';
 
-dotenv.config();
-
-const ALPHA_VANTAGE_API_KEY = process.env.ALPHA_VANTAGE_API_KEY as string;
+const ALPHA_VANTAGE_API_KEY = process.env.EXPO_PUBLIC_ALPHA_VANTAGE_API_KEY as string;
 const BASE_URL = 'https://www.alphavantage.co/query';
+console.log('Using Alpha Vantage API Key:', ALPHA_VANTAGE_API_KEY);
 
 function handleAlphaVantageErrors(data: any, functionName: string) {
   if (!data || Object.keys(data).length === 0) {
