@@ -99,6 +99,6 @@ Access all visual resources and mockups via the Google Drive link:
 ---
 ## Author
 
-**Hemanth Kumar** (aka *Asp-irin*)  
-[LinkedIn](https://www.linkedin.com/in/hemanth-kumar-reddy-89668b252/)
+Hemanth Kumar (aka Asp-irin)  
+LinkedIn: [https://www.linkedin.com/in/hemanth-kumar-reddy-89668b252/]
 ---
