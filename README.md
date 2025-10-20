@@ -8,7 +8,7 @@ With the API limit of 25 calls per day, building this app presented a challenge.
 
 ## Low-Level Planning
 
-Refer to the attached documentation for comprehensive details on trade-offs, architecture decisions, and feature planning.
+Refer to the attached [documentation](https://docs.google.com/document/d/1uiOwHSV9ZLF9YyHlDGlbPntBX8Pkkjke-Ky21wFUAzg/edit?usp=sharing) for comprehensive details on trade-offs, architecture decisions, and feature planning.
 
 ---
 
@@ -35,40 +35,40 @@ Refer to the attached documentation for comprehensive details on trade-offs, arc
 ## Getting Started
 
 ### 1. Clone the Repository
-
-bash
+ 
+```
 git clone https://github.com/your-username/your-repo.git
 cd your-repo
-
+```
 
 ### 2. Install Dependencies
-
-bash
+ 
+```
 npm install
-
+```
 
 ### 3. Configure Environment Variables
 
 Create a .env file in the root directory and add your Alpha Vantage API key:
-
-env
+.env
+```
 ALPHA_VANTAGE_API_KEY=your_api_key_here
-
+```
 
 You can obtain a free API key from: https://www.alphavantage.co/support/#api-key
 
 ### 4. Run the App
 
 To run on Android:
-
-bash
+ 
+```
 npm run android
-
+```
 Or use Expo:
-
-bash
+ 
+```
 npx expo start
-
+```
 
 Available runtime options include:
 - Android Emulator
@@ -93,15 +93,10 @@ Note: The free API tier enforces a 25-request daily limit. The application imple
 
 ## Media Assets
 
-Access the following resources via the provided Google Drive link or GitHub Releases section:
+Access all visual resources and mockups via the Google Drive link:  
+[Media Drive Folder](https://drive.google.com/drive/folders/1sry7rJwkl6FuICUZOEzxhc-goIL4w8mg?usp=sharing)
 
-    -Application screenshots
-
-    -Functional demonstrations
-
-    -Downloadable APK
 ---
-
 ## Author
 
 Hemanth Kumar (aka Asp-irin)  
